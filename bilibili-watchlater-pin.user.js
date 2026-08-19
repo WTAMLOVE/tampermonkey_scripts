@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Bilibili 稍后再看：单视频置顶
 // @namespace    https://github.com/local/bilibili-watchlater-pin
-// @version      1.2.0
+// @version      1.0.0
 // @description  在稍后再看卡片上增加“置顶”按钮；将该视频重新加入列表，使其成为最近添加的第一项。
 // @match        https://www.bilibili.com/watchlater/*
 // @match        https://www.bilibili.com/list/watchlater*
@@ -128,75 +128,31 @@
         }
     }
 
-    function findDeleteButton(card) {
-        // 新版卡片的删除控件有时仅是无文字的 SVG 图标，因此同时检测其 class。
-        const candidates = [...card.querySelectorAll('button, [role="button"], [title], [aria-label], [class]')];
-        const matched = candidates.find((element) => {
-            if (element.classList.contains(BUTTON_CLASS)) return false;
-            const className = typeof element.className === 'string'
-                ? element.className
-                : (element.className?.baseVal || '');
-            const label = [element.textContent, element.title, element.getAttribute('aria-label'), className].join(' ');
-            return /删除|移除|delete|remove|trash|recycle|close|del[-_]/i.test(label);
-        });
-        if (!matched) return null;
-        const control = matched.closest('button, [role="button"], [class*="delete" i], [class*="remove" i], [class*="trash" i], [class*="close" i]');
-        // 图标本身不能承载按钮样式，优先采用其可点击父元素。
-        return control || (/^(svg|i|use|path)$/i.test(matched.tagName) ? matched.parentElement : matched);
-    }
-
-    function makeFallbackButton() {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = `${BUTTON_CLASS} wl-pin-button--fallback`;
-        Object.assign(button.style, {
-            position: 'absolute', right: '42px', top: '10px', zIndex: 20,
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            height: '28px', padding: '0 9px', border: 0, borderRadius: '6px',
-            background: 'rgba(24, 25, 28, .72)', color: '#fff', cursor: 'pointer',
-            fontSize: '13px', lineHeight: '28px', transition: 'background .2s',
-        });
-        button.addEventListener('mouseenter', () => { button.style.background = '#fb7299'; });
-        button.addEventListener('mouseleave', () => { button.style.background = 'rgba(24, 25, 28, .72)'; });
-        return button;
-    }
-
     function addButtons() {
         document.querySelectorAll('.bili-video-card').forEach((card) => {
             if (card.querySelector(`.${BUTTON_CLASS}`)) return;
             const { bvid, aid } = getIdentity(card);
             if (!bvid || !aid) return;
 
-            const deleteButton = findDeleteButton(card);
-            const button = deleteButton
-                ? document.createElement(deleteButton.tagName.toLowerCase())
-                : makeFallbackButton();
-            if (deleteButton) {
-                // 复用 B 站删除按钮的 class 与内联样式，确保大小、颜色及悬停效果一致。
-                const className = typeof deleteButton.className === 'string'
-                    ? deleteButton.className
-                    : (deleteButton.className?.baseVal || '');
-                button.className = `${className} ${BUTTON_CLASS}`.trim();
-                button.style.cssText = deleteButton.style.cssText;
-                if (button instanceof HTMLButtonElement) button.type = 'button';
-            }
+            const button = document.createElement('button');
+            button.className = BUTTON_CLASS;
+            button.type = 'button';
             button.textContent = '置顶';
             button.title = '将此视频置为最近添加的第一项';
-            button.setAttribute('aria-label', '置顶');
+            Object.assign(button.style, {
+                position: 'absolute', right: '10px', top: '10px', zIndex: 20, border: 0,
+                borderRadius: '6px', padding: '5px 9px', cursor: 'pointer', color: '#fff',
+                background: '#fb7299', fontSize: '13px', fontWeight: '600', lineHeight: '18px',
+                boxShadow: '0 2px 7px rgba(0,0,0,.18)',
+            });
             button.addEventListener('click', (event) => {
                 event.preventDefault();
                 event.stopPropagation();
                 pin(card, button);
             }, true);
 
-            if (deleteButton) {
-                // 直接插在删除按钮之前，因此在水平操作区中始终位于删除按钮左侧。
-                deleteButton.before(button);
-            } else {
-                // 兜底：B 站若再次更改删除图标的 DOM，仍显示可用按钮，而不会静默失效。
-                if (getComputedStyle(card).position === 'static') card.style.position = 'relative';
-                card.append(button);
-            }
+            if (getComputedStyle(card).position === 'static') card.style.position = 'relative';
+            card.append(button);
         });
     }
 

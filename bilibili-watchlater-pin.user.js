@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Bilibili 稍后再看：单视频置顶
 // @namespace    https://github.com/local/bilibili-watchlater-pin
-// @version      1.3.0
+// @version      1.4.0
 // @description  在稍后再看卡片上增加“置顶”按钮；将该视频重新加入列表，使其成为最近添加的第一项。
 // @match        https://www.bilibili.com/watchlater/*
 // @match        https://www.bilibili.com/list/watchlater*
@@ -114,8 +114,9 @@
             }
             if (added.code !== 0) throw new Error(added.message || `重新加入失败（${added.code}）`);
 
-            showToast('置顶成功，正在刷新列表。');
-            setTimeout(() => location.reload(), 650);
+            button.textContent = '置顶成功';
+            button.disabled = true;
+            showToast('置顶成功。');
         } catch (error) {
             console.error('[Watchlater Pin]', error);
             showToast(`置顶失败：${error.message}。该视频可能已被移出列表，请手动重新添加。`, 'error');

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Bilibili 稍后再看：单视频置顶
 // @namespace    https://github.com/local/bilibili-watchlater-pin
-// @version      1.0.0
+// @version      1.3.0
 // @description  在稍后再看卡片上增加“置顶”按钮；将该视频重新加入列表，使其成为最近添加的第一项。
 // @match        https://www.bilibili.com/watchlater/*
 // @match        https://www.bilibili.com/list/watchlater*
@@ -98,8 +98,6 @@
             showToast('未能读取此视频的编号，请刷新页面后重试。', 'error');
             return;
         }
-        if (!confirm('置顶会把此视频从稍后再看中删除后立刻重新加入，使其成为“最近添加”的第一项。确定继续吗？')) return;
-
         isWorking = true;
         button.disabled = true;
         button.textContent = '置顶中…';

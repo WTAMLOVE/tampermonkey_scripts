@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Bilibili 稍后再看：单视频置顶
 // @namespace    https://github.com/local/bilibili-watchlater-pin
-// @version      1.4.0
+// @version      1.5.0
 // @description  在稍后再看卡片上增加“置顶”按钮；将该视频重新加入列表，使其成为最近添加的第一项。
 // @match        https://www.bilibili.com/watchlater/*
 // @match        https://www.bilibili.com/list/watchlater*

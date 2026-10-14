@@ -15,7 +15,7 @@
     'use strict';
 
     const API = {
-        remove: 'https://api.bilibili.com/x/v2/history/toview/del',
+        // remove: 'https://api.bilibili.com/x/v2/history/toview/del',
         add: 'https://api.bilibili.com/x/v2/history/toview/add',
     };
     const BUTTON_CLASS = 'wl-pin-button';
@@ -102,11 +102,12 @@
         button.disabled = true;
         button.textContent = '置顶中…';
         try {
-            const removed = await request(API.remove, { aid });
-            if (removed.code !== 0) throw new Error(removed.message || `删除失败（${removed.code}）`);
+            // 暂时跳过删除，直接重新加入列表。
+            // const removed = await request(API.remove, { aid });
+            // if (removed.code !== 0) throw new Error(removed.message || `删除失败（${removed.code}）`);
 
-            // 给服务端一点时间完成删除；若首次添加失败会再尝试一次，尽量避免意外丢失。
-            await sleep(350);
+            // 删除操作已跳过，无需等待服务端完成删除。
+            // await sleep(350);
             let added = await request(API.add, { bvid });
             if (added.code !== 0) {
                 await sleep(700);

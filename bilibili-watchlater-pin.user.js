@@ -57,21 +57,22 @@
     function getIdentity(card) {
         const candidateUrls = [...card.querySelectorAll('a[href]')].map((anchor) => anchor.href);
         let bvid = '';
-        let aid = '';
+        // `aid` 仅供已停用的删除接口使用，暂不提取。
+        // let aid = '';
 
         for (const href of candidateUrls) {
             try {
                 const url = new URL(href, location.origin);
                 bvid ||= url.searchParams.get('bvid') || url.pathname.match(/\/video\/(BV[\w]+)/i)?.[1] || '';
-                aid ||= url.searchParams.get('oid') || url.searchParams.get('aid') || '';
+                // aid ||= url.searchParams.get('oid') || url.searchParams.get('aid') || '';
             } catch {
                 // 忽略非标准链接，继续寻找视频链接。
             }
-            if (bvid && aid) break;
+            if (bvid) break;
         }
 
-        aid ||= card.dataset.aid || card.querySelector('[data-aid]')?.dataset.aid || '';
-        return { bvid, aid };
+        // aid ||= card.dataset.aid || card.querySelector('[data-aid]')?.dataset.aid || '';
+        return { bvid };
     }
 
     function showToast(message, type = 'info') {
@@ -93,8 +94,8 @@
             return;
         }
 
-        const { bvid, aid } = getIdentity(card);
-        if (!bvid || !aid) {
+        const { bvid } = getIdentity(card);
+        if (!bvid) {
             showToast('未能读取此视频的编号，请刷新页面后重试。', 'error');
             return;
         }
@@ -131,8 +132,8 @@
     function addButtons() {
         document.querySelectorAll('.bili-video-card').forEach((card) => {
             if (card.querySelector(`.${BUTTON_CLASS}`)) return;
-            const { bvid, aid } = getIdentity(card);
-            if (!bvid || !aid) return;
+            const { bvid } = getIdentity(card);
+            if (!bvid) return;
 
             const button = document.createElement('button');
             button.className = BUTTON_CLASS;
